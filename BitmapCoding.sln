@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitmapCoding", "BitmapCoding\BitmapCoding.csproj", "{D59A26D5-CCFE-460D-8C21-BA98A716ACFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D59A26D5-CCFE-460D-8C21-BA98A716ACFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D59A26D5-CCFE-460D-8C21-BA98A716ACFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D59A26D5-CCFE-460D-8C21-BA98A716ACFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D59A26D5-CCFE-460D-8C21-BA98A716ACFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA4FEFA8-309B-436E-A852-D5526CD8A0BF}
+	EndGlobalSection
+EndGlobal
