@@ -11,8 +11,11 @@ namespace BitmapCoding
 {
     class Program
     {
-        private const int Keysize = 256;
-        private const int DerivationIterations = 1000;
+        enum State
+        {
+            HIDING,
+            FILL_WITH_ZEROS
+        };
         static void Main(string[] args)
         {
             Bitmap bitmap = new Bitmap("guitar.png");
@@ -20,7 +23,10 @@ namespace BitmapCoding
             bm.Save("file.png");
             Console.WriteLine("Úspěšně provedeno!");
             Console.WriteLine(ExtractText(bitmap));
-            Console.WriteLine(Encrypt(Console.ReadLine(), Console.ReadLine()));
+            Bitmap bm1 = MergeText("ahoj", bm);
+            bm1.Save("file1.png");
+            Console.WriteLine("Úspěšně provedeno!");
+            Console.WriteLine(ExtractText(bm1));
             Console.ReadKey();
         }
         public static Bitmap CreateNonIndexedImage(Bitmap src)
@@ -34,6 +40,102 @@ namespace BitmapCoding
 
             return newBmp;
         }
+
+        public static Bitmap MergeText(string text, Bitmap bmp)
+        {
+            State s = State.HIDING;
+
+            int charIndex = 0;
+            int charValue = 0;
+            long colorUnitIndex = 0;
+
+            int zeros = 0;
+
+            int R = 0, G = 0, B = 0;
+
+            for (int i = 0; i < bmp.Height; i++)
+            {
+                for (int j = 0; j < bmp.Width; j++)
+                {
+                    Color pixel = bmp.GetPixel(j, i);
+
+                    pixel = Color.FromArgb(pixel.R - pixel.R % 2,
+                        pixel.G - pixel.G % 2, pixel.B - pixel.B % 2);
+
+                    R = pixel.R; G = pixel.G; B = pixel.B;
+
+                    for (int n = 0; n < 3; n++)
+                    {
+                        if (colorUnitIndex % 8 == 0)
+                        {
+                            if (zeros == 8)
+                            {
+                                if ((colorUnitIndex - 1) % 3 < 2)
+                                {
+                                    bmp.SetPixel(j, i, Color.FromArgb(R, G, B));
+                                }
+
+                                return bmp;
+                            }
+
+                            if (charIndex >= text.Length)
+                            {
+                                s = State.FILL_WITH_ZEROS;
+                            }
+                            else
+                            {
+                                charValue = text[charIndex++];
+                            }
+                        }
+
+                        switch (colorUnitIndex % 3)
+                        {
+                            case 0:
+                                {
+                                    if (s == State.HIDING)
+                                    {
+                                        R += charValue % 2;
+
+                                        charValue /= 2;
+                                    }
+                                }
+                                break;
+                            case 1:
+                                {
+                                    if (s == State.HIDING)
+                                    {
+                                        G += charValue % 2;
+
+                                        charValue /= 2;
+                                    }
+                                }
+                                break;
+                            case 2:
+                                {
+                                    if (s == State.HIDING)
+                                    {
+                                        B += charValue % 2;
+
+                                        charValue /= 2;
+                                    }
+
+                                    bmp.SetPixel(j, i, Color.FromArgb(R, G, B));
+                                }
+                                break;
+                        }
+
+                        colorUnitIndex++;
+
+                        if (s == State.FILL_WITH_ZEROS)
+                        {
+                            zeros++;
+                        }
+                    }
+                }
+            }
+            return bmp;
+        }
+
         public static string ExtractText(Bitmap bmp)
         {
             int colorUnitIndex = 0;
@@ -101,52 +203,6 @@ namespace BitmapCoding
             }
 
             return result;
-        }
-        public static string Encrypt(string plainText, string passPhrase)
-        {
-            // Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
-            // so that the same Salt and IV values can be used when decrypting.  
-            var saltStringBytes = Generate256BitsOfRandomEntropy();
-            var ivStringBytes = Generate256BitsOfRandomEntropy();
-            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-            using (var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations))
-            {
-                var keyBytes = password.GetBytes(Keysize / 8);
-                using (var symmetricKey = new RijndaelManaged())
-                {
-                    symmetricKey.BlockSize = 256;
-                    symmetricKey.Mode = CipherMode.CBC;
-                    symmetricKey.Padding = PaddingMode.PKCS7;
-                    using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
-                    {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                            {
-                                cryptoStream.Write(plainTextBytes, 0, plainTextBytes.Length);
-                                cryptoStream.FlushFinalBlock();
-                                // Create the final bytes as a concatenation of the random salt bytes, the random iv bytes and the cipher bytes.
-                                var cipherTextBytes = saltStringBytes;
-                                cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
-                                cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                                memoryStream.Close();
-                                cryptoStream.Close();
-                                return Convert.ToBase64String(cipherTextBytes);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        private static byte[] Generate256BitsOfRandomEntropy()
-        {
-            var randomBytes = new byte[32]; // 32 Bytes will give us 256 bits.
-            using (var rngCsp = new RNGCryptoServiceProvider())
-            {
-                // Fill the array with cryptographically secure random bytes.
-                rngCsp.GetBytes(randomBytes);
-            }
-            return randomBytes;
         }
     }
 }
