@@ -18,16 +18,29 @@ namespace BitmapCoding
         };
         static void Main(string[] args)
         {
-            Bitmap bitmap = new Bitmap("guitar.png");
-            Bitmap bm = CreateNonIndexedImage(bitmap);
-            bm.Save("file.png");
-            Console.WriteLine("Úspěšně provedeno!");
-            Console.WriteLine(ExtractText(bitmap));
-            Bitmap bm1 = MergeText("ahoj", bm);
-            bm1.Save("file1.png");
-            Console.WriteLine("Úspěšně provedeno!");
-            Console.WriteLine(ExtractText(bm1));
-            Console.ReadKey();
+            if (args.Contains("--hide"))
+            {
+                Bitmap bitmap = new Bitmap("guitar.png");
+                Bitmap bm = CreateNonIndexedImage(bitmap);
+                bm.Save("file.png");
+                Console.WriteLine("Úspěšně provedeno! (uloženo jako file1.png)");
+                Console.WriteLine(ExtractText(bitmap));
+                Bitmap bm1 = MergeText(args[2], bm);
+                bm1.Save("file1.png");
+                Console.ReadKey();
+            }
+            else if (args.Contains("--show"))
+            {
+                if (File.Exists("file1.png"))
+                {
+                    Bitmap bm1 = new Bitmap("file1.png");
+                    Console.WriteLine("Úspěšně provedeno! text z obrázku:");
+                    Console.WriteLine(ExtractText(bm1));
+                    Console.ReadKey();
+                }
+                else
+                    Console.WriteLine("Soubor nebyl zašifrován do obrázku.");
+            }
         }
         public static Bitmap CreateNonIndexedImage(Bitmap src)
         {
@@ -194,14 +207,12 @@ namespace BitmapCoding
         public static int reverseBits(int n)
         {
             int result = 0;
-
             for (int i = 0; i < 8; i++)
             {
                 result = result * 2 + n % 2;
 
                 n /= 2;
             }
-
             return result;
         }
     }
