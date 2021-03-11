@@ -78,63 +78,42 @@ namespace BitmapCoding
                             if (zeros == 8)
                             {
                                 if ((colorUnitIndex - 1) % 3 < 2)
-                                {
                                     bmp.SetPixel(j, i, Color.FromArgb(R, G, B));
-                                }
                                 return bmp;
                             }
                             if (charIndex >= text.Length)
-                            {
                                 s = State.FILL_WITH_ZEROS;
-                            }
                             else
-                            {
                                 charValue = text[charIndex++];
-                            }
                         }
-
                         switch (colorUnitIndex % 3)
                         {
                             case 0:
+                                if (s == State.HIDING)
                                 {
-                                    if (s == State.HIDING)
-                                    {
-                                        R += charValue % 2;
-
-                                        charValue /= 2;
-                                    }
+                                    R += charValue % 2;
+                                    charValue /= 2;
                                 }
                                 break;
                             case 1:
+                                if (s == State.HIDING)
                                 {
-                                    if (s == State.HIDING)
-                                    {
-                                        G += charValue % 2;
-
-                                        charValue /= 2;
-                                    }
+                                    G += charValue % 2;
+                                    charValue /= 2;
                                 }
                                 break;
                             case 2:
+                                if (s == State.HIDING)
                                 {
-                                    if (s == State.HIDING)
-                                    {
-                                        B += charValue % 2;
-
-                                        charValue /= 2;
-                                    }
-
-                                    bmp.SetPixel(j, i, Color.FromArgb(R, G, B));
+                                    B += charValue % 2;
+                                    charValue /= 2;
                                 }
+                                bmp.SetPixel(j, i, Color.FromArgb(R, G, B));
                                 break;
                         }
-
                         colorUnitIndex++;
-
                         if (s == State.FILL_WITH_ZEROS)
-                        {
                             zeros++;
-                        }
                     }
                 }
             }
@@ -159,19 +138,13 @@ namespace BitmapCoding
                         switch (colorUnitIndex % 3)
                         {
                             case 0:
-                                {
-                                    charValue = charValue * 2 + pixel.R % 2;
-                                }
+                                charValue = charValue * 2 + pixel.R % 2;
                                 break;
                             case 1:
-                                {
-                                    charValue = charValue * 2 + pixel.G % 2;
-                                }
+                                charValue = charValue * 2 + pixel.G % 2;
                                 break;
                             case 2:
-                                {
-                                    charValue = charValue * 2 + pixel.B % 2;
-                                }
+                                charValue = charValue * 2 + pixel.B % 2;
                                 break;
                         }
                         colorUnitIndex++;
@@ -179,9 +152,7 @@ namespace BitmapCoding
                         {
                             charValue = reverseBits(charValue);
                             if (charValue == 0)
-                            {
                                 return extractedText;
-                            }
                             char c = (char)charValue;
                             extractedText += c.ToString();
                         }
